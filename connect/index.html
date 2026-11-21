@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instagram Connected</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --bg:#FAF6EC; --ink:#21245A; --gold:#A97A17; --card:#fff; --line:#e6dfcc; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14163a; --ink:#f3efe3; --gold:#F0C452; --card:#1e2150; --line:#33367a; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width:520px; margin:0 auto; padding:48px 16px; }
+  h1 { font-size:28px; margin:0 0 8px; }
+  p { margin:0 0 16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin:24px 0; }
+  .step { color:var(--gold); font-weight:600; font-size:14px; text-transform:none; margin-bottom:6px; }
+  code { display:block; word-break:break-all; font:13px/1.4 ui-monospace, Menlo, monospace; background:var(--bg); border-radius:8px; padding:12px; margin:0 0 14px; max-height:120px; overflow:auto; }
+  button { width:100%; border:0; border-radius:10px; padding:14px; font:600 17px/1 inherit; background:var(--ink); color:var(--bg); cursor:pointer; }
+  .small { font-size:14px; opacity:.75; }
+  .hide { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <div id="ok" class="hide">
+    <h1>Almost done ✅</h1>
+    <p>You tapped Allow, so Instagram sent back a one-time code. Send it back and the setup is finished.</p>
+    <div class="card">
+      <div class="step">Last step</div>
+      <code id="code"></code>
+      <button id="copy">Copy code</button>
+      <p class="small" style="margin:12px 0 0">Then paste it in a text or email to whoever sent you the link. It works for 1 hour and only once. It isn't a password and can't be used to log in.</p>
+    </div>
+  </div>
+  <div id="err" class="hide">
+    <h1>Not connected</h1>
+    <p id="errmsg">Instagram didn't send a code back. Open the link again and tap <b>Allow</b>.</p>
+  </div>
+</main>
+<script>
+  const q = new URLSearchParams(location.search);
+  const code = (q.get("code") || "").replace(/#_$/, "");
+  if (code) {
+    document.getElementById("ok").classList.remove("hide");
+    document.getElementById("code").textContent = code;
+    document.getElementById("copy").onclick = async (e) => {
+      try { await navigator.clipboard.writeText(code); e.target.textContent = "Copied ✓"; }
+      catch { const r = document.createRange(); r.selectNodeContents(document.getElementById("code")); getSelection().removeAllRanges(); getSelection().addRange(r); e.target.textContent = "Select the code above and copy it"; }
+    };
+  } else {
+    document.getElementById("err").classList.remove("hide");
+    if (q.get("error_description")) document.getElementById("errmsg").textContent = "Instagram said: " + q.get("error_description") + ". Open the link again and tap Allow.";
+  }
+</script>
+</body>
+</html>
